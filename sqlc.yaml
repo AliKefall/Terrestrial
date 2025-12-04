@@ -1,0 +1,68 @@
+
+version: "2"
+sql:
+  - engine: "sqlite"
+    schema: "internal/sql/migrations"
+    queries: "internal/sql/queries"
+    gen:
+      go:
+        package: "db"
+        out: "internal/db"
+        overrides:
+          # Users
+          - column: "users.id"
+            go_type:
+              import: "github.com/google/uuid"
+              package: "uuid"
+              type: "UUID"
+
+          - column: "users.created_at"
+            go_type: "time.Time"
+          - column: "users.updated_at"
+            go_type: "time.Time"
+
+          # Refresh Tokens
+          - column: "refresh_tokens.user_id"
+            go_type:
+              import: "github.com/google/uuid"
+              package: "uuid"
+              type: "UUID"
+
+          - column: "refresh_tokens.created_at"
+            go_type: "time.Time"
+
+          - column: "refresh_tokens.updated_at"
+            go_type: "time.Time"
+
+          - column: "refresh_tokens.expires_at"
+            go_type: "time.Time"
+
+          - column: "refresh_tokens.revoked_at"
+            nullable: true
+            go_type:
+              import: "database/sql"
+
+              type: "NullTime"
+
+          # Transactions
+          - column: "transactions.id"
+            go_type:
+              import: "github.com/google/uuid"
+              package: "uuid"
+              type: "UUID"
+
+          - column: "transactions.user_id"
+            go_type:
+              import: "github.com/google/uuid"
+              package: "uuid"
+              type: "UUID"
+
+          - column: "transactions.occurred_at"
+            go_type: "time.Time"
+
+          - column: "transactions.created_at"
+            go_type: "time.Time"
+
+          - column: "transactions.updated_at"
+            go_type: "time.Time"
+

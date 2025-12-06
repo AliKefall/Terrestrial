@@ -33,7 +33,7 @@ func newServer(sqlDB *sql.DB) *Server {
 
 func (s *Server) registerRoutes() {
 	s.Router.Post("/auth/register", handlers.Register(s.DB))
-	s.Router.Post("/auth/login", handlers.Login(s.DB))
+	s.Router.Post("/auth/login", handlers.Login(s.DB, s.Config.TokenSecret))
 
 	s.Router.Route("/transactions", func(r chi.Router) {
 		r.Use(handlers.AuthMiddleware(s.Config.TokenSecret))

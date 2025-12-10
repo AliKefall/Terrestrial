@@ -13,9 +13,11 @@ type Server struct {
 	Router *chi.Mux
 	DB     *db.Queries
 	Config *Config
+	SQLDB  *sql.DB
 }
 
-func newServer(sqlDB *sql.DB) *Server {
+// Server constructor artık Config de alıyor
+func newServer(sqlDB *sql.DB, cfg *Config) *Server {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
@@ -25,6 +27,7 @@ func newServer(sqlDB *sql.DB) *Server {
 	s := &Server{
 		Router: router,
 		DB:     queries,
+		Config: cfg,
 	}
 
 	s.registerRoutes()
@@ -32,15 +35,26 @@ func newServer(sqlDB *sql.DB) *Server {
 }
 
 func (s *Server) registerRoutes() {
+
+	// --- AUTH ---
 	s.Router.Post("/auth/register", handlers.Register(s.DB))
 	s.Router.Post("/auth/login", handlers.Login(s.DB, s.Config.TokenSecret))
 
+	// --- TRANSACTIONS ---
 	s.Router.Route("/transactions", func(r chi.Router) {
+
 		r.Use(handlers.AuthMiddleware(s.Config.TokenSecret))
+
 		r.Post("/", handlers.CreateTransaction(s.DB))
 		r.Get("/", handlers.ListTransactions(s.DB))
-		r.Get("/monthly", handlers.SumMonthly(s.DB))
-		r.Get("/daily", handlers.SumDaily(s.DB))
-		r.Get("/yearly", handlers.SumYearly(s.DB))
+
+		// Monthly aggregate endpoint
+		r.Get("/monthly", handlers.SumByMonthHandler(s.SQLDB))
+
+		// Daily aggregate endpoint
+		r.Get("/daily", handlers.SumByDayHandler(s.SQLDB))
+
+		// Yearly aggregate endpoint
+		r.Get("/yearly", handlers.SumByYearHandler(s.SQLDB))
 	})
 }

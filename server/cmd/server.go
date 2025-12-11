@@ -28,6 +28,7 @@ func newServer(sqlDB *sql.DB, cfg *Config) *Server {
 		Router: router,
 		DB:     queries,
 		Config: cfg,
+		SQLDB:  sqlDB,
 	}
 
 	s.registerRoutes()

@@ -14,8 +14,8 @@ func connectDB(cfg *Config) *sql.DB {
 		log.Fatalf("Failed to open Turso database: %v", err)
 	}
 
-	db.SetMaxIdleConns(1)
-	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(3)
+	db.SetMaxOpenConns(3)
 
 	if err := db.Ping(); err != nil {
 		log.Fatalf("Failed to connect to Turso: %v", err)

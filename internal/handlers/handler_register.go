@@ -25,7 +25,7 @@ type registerResponse struct {
 func Register(q *db.Queries) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req registerRequest
-		err := json.NewDecoder(r.Body).Decode(req)
+		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			RespondWithError(w, http.StatusBadRequest, "Invalid request", err)
 			return
@@ -45,8 +45,8 @@ func Register(q *db.Queries) http.HandlerFunc {
 			Email:     req.Email,
 			Username:  req.Username,
 			Password:  hashed,
-			CreatedAt: now,
-			UpdatedAt: now,
+			CreatedAt: now.String(),
+			UpdatedAt: now.String(),
 		})
 		if err != nil {
 			RespondWithError(w, http.StatusBadRequest, "User cannot be created", err)

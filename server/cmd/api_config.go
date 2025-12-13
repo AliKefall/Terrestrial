@@ -13,6 +13,7 @@ type Config struct {
 }
 
 func loadConfig() *Config {
+
 	cfg := &Config{
 		DatabaseURL:   os.Getenv("TURSO_URL"),
 		DatabaseToken: os.Getenv("TURSO_AUTH_TOKEN"),

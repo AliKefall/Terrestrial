@@ -15,10 +15,10 @@ type loginRequest struct {
 }
 
 type loginResponse struct {
-	AccessToken  string    `json:"access_token"`
-	RefreshToken string    `json:"refresh_token"`
-	UserID       string    `json:"user_id"`
-	ExpiresAt    time.Time `json:"expires_at"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	UserID       string `json:"user_id"`
+	ExpiresAt    string `json:"expires_at"`
 }
 
 func Login(q *db.Queries, tokenSecret string) http.HandlerFunc {
@@ -57,9 +57,9 @@ func Login(q *db.Queries, tokenSecret string) http.HandlerFunc {
 		_, err = q.CreateRefreshToken(r.Context(), db.CreateRefreshTokenParams{
 			Token:     refreshToken,
 			UserID:    user.ID,
-			CreatedAt: now,
-			UpdatedAt: now,
-			ExpiresAt: now.Add(30 * 24 * time.Hour),
+			CreatedAt: now.String(),
+			UpdatedAt: now.String(),
+			ExpiresAt: now.Add(30 * 24 * time.Hour).String(),
 		})
 		if err != nil {
 			RespondWithError(w, 500, "Refresh Token could not be saved.", err)
@@ -69,7 +69,7 @@ func Login(q *db.Queries, tokenSecret string) http.HandlerFunc {
 			AccessToken:  accessToken,
 			RefreshToken: refreshToken,
 			UserID:       user.ID.String(),
-			ExpiresAt:    now.Add(1 * time.Hour),
+			ExpiresAt:    now.Add(1 * time.Hour).String(),
 		})
 	}
 }

@@ -15,7 +15,15 @@ type SumResult struct {
 	Total float64 `json:"total"`
 }
 
-func SumQuery(ctx context.Context, dbase *sql.DB, query string, userID uuid.UUID, start, end time.Time) ([]SumResult, error) {
+func SumQuery(
+	ctx context.Context,
+	dbase *sql.DB,
+	query string,
+	userID uuid.UUID,
+	start string,
+	end string,
+) ([]SumResult, error) {
+
 	rows, err := dbase.QueryContext(ctx, query, userID, start, end)
 	if err != nil {
 		return nil, err
@@ -31,35 +39,46 @@ func SumQuery(ctx context.Context, dbase *sql.DB, query string, userID uuid.UUID
 		if err := rows.Scan(&key, &total); err != nil {
 			return nil, err
 		}
+
+		sum := 0.0
+		if total.Valid {
+			sum = total.Float64
+		}
+
 		results = append(results, SumResult{
 			Key:   key,
-			Total: total.Float64,
+			Total: sum,
 		})
-
 	}
-	return results, nil
 
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return results, nil
 }
 
-func ParseDateRange(r *http.Request) (time.Time, time.Time, error) {
+func ParseDateRange(r *http.Request) (string, string, error) {
 	startStr := r.URL.Query().Get("start")
 	endStr := r.URL.Query().Get("end")
 
 	if startStr == "" || endStr == "" {
-		return time.Time{}, time.Time{}, errors.New("start and end parameters are required")
+		return "", "", errors.New("start and end parameters are required")
 
 	}
 
 	start, err := time.Parse(time.RFC3339, startStr)
 	if err != nil {
-		return time.Time{}, time.Time{}, err
+		return "", "", err
 	}
 
 	end, err := time.Parse(time.RFC3339, endStr)
 	if err != nil {
-		return time.Time{}, time.Time{}, err
+		return "", "", err
 	}
-	return start, end, nil
+
+	return start.Format(time.RFC3339), end.Format(time.RFC3339), nil
+
 }
 
 const querySumByDay = `

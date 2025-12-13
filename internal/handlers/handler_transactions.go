@@ -40,8 +40,6 @@ func CreateTransaction(q *db.Queries) http.HandlerFunc {
 			return
 		}
 
-		now := time.Now()
-
 		params := db.CreateTransactionParams{
 			ID:       uuid.New(),
 			UserID:   userID,
@@ -55,9 +53,10 @@ func CreateTransaction(q *db.Queries) http.HandlerFunc {
 				String: req.Note,
 				Valid:  req.Note != "",
 			},
-			OccurredAt: occuredAt,
-			CreatedAt:  now,
-			UpdatedAt:  now,
+
+			OccurredAt: occuredAt.Format(time.RFC3339),
+			CreatedAt:  time.Now().UTC().Format(time.RFC3339),
+			UpdatedAt:  time.Now().UTC().Format(time.RFC3339),
 		}
 
 		tx, err := q.CreateTransaction(r.Context(), params)

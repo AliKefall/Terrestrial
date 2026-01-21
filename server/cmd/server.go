@@ -37,11 +37,9 @@ func newServer(sqlDB *sql.DB, cfg *Config) *Server {
 
 func (s *Server) registerRoutes() {
 
-	// --- AUTH ---
 	s.Router.Post("/auth/register", handlers.Register(s.DB))
 	s.Router.Post("/auth/login", handlers.Login(s.DB, s.Config.TokenSecret))
 
-	// --- TRANSACTIONS ---
 	s.Router.Route("/transactions", func(r chi.Router) {
 
 		r.Use(handlers.AuthMiddleware(s.Config.TokenSecret))
@@ -49,13 +47,10 @@ func (s *Server) registerRoutes() {
 		r.Post("/", handlers.CreateTransaction(s.DB))
 		r.Get("/", handlers.ListTransactions(s.DB))
 
-		// Monthly aggregate endpoint
 		r.Get("/monthly", handlers.SumByMonthHandler(s.SQLDB))
 
-		// Daily aggregate endpoint
 		r.Get("/daily", handlers.SumByDayHandler(s.SQLDB))
 
-		// Yearly aggregate endpoint
 		r.Get("/yearly", handlers.SumByYearHandler(s.SQLDB))
 	})
 }

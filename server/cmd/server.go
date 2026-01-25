@@ -16,7 +16,7 @@ type Server struct {
 	SQLDB  *sql.DB
 }
 
-// Server constructor artık Config de alıyor
+// Server constructor artık Config de alıyor. Libsql driverlari ile cakismamasi icin konulmustur.
 func newServer(sqlDB *sql.DB, cfg *Config) *Server {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
